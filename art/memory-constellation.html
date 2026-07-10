@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记忆星图 · Memory Constellation Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* 晨雾纸页色板 Morning Pages Palette */
+        :root {
+            --paper: #faf9f7;
+            --paper-50: #fdfcfb;
+            --paper-100: #f5f3f0;
+            --paper-200: #ebe8e3;
+            --ink: #1a1a2e;
+            --ink-300: #9898b5;
+            --ink-400: #6b6b8d;
+            --ink-500: #4a4a6a;
+            --ink-700: #25253d;
+            --ink-800: #1a1a2e;
+            --amber: #c87941;
+            --amber-light: #e8a87c;
+            --amber-bg: #fdf4ec;
+            --border: #e2dfd9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(160deg, var(--paper) 0%, var(--paper-100) 100%);
+            min-height: 100vh;
+            color: var(--ink-800);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 340px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            padding: 28px 24px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(26, 26, 46, 0.06);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 26px;
+            font-weight: 500;
+            color: var(--ink-800);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar .subtitle {
+            color: var(--ink-400);
+            font-size: 13px;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        /* Control Sections */
+        .control-section {
+            margin-bottom: 28px;
+        }
+
+        .control-section h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink-700);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-section h3::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--amber);
+            flex-shrink: 0;
+        }
+
+        /* Seed Controls */
+        .seed-input {
+            width: 100%;
+            background: var(--paper-50);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+            color: var(--ink-700);
+            transition: all 0.2s ease;
+        }
+
+        .seed-input:focus {
+            outline: none;
+            border-color: var(--amber);
+            box-shadow: 0 0 0 3px rgba(200, 121, 65, 0.1);
+            background: white;
+        }
+
+        .seed-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .regen-button {
+            margin-bottom: 0;
+        }
+
+        /* Parameter Controls */
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-700);
+            margin-bottom: 6px;
+        }
+
+        .control-group .hint {
+            font-size: 11px;
+            color: var(--ink-300);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: var(--paper-200);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--amber);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(200, 121, 65, 0.25);
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--amber-light);
+        }
+
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--amber);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--ink-400);
+            min-width: 55px;
+            text-align: right;
+        }
+
+        /* Color Pickers */
+        .color-group {
+            margin-bottom: 14px;
+        }
+
+        .color-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-400);
+            margin-bottom: 4px;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-picker-container input[type="color"] {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--ink-400);
+        }
+
+        /* Buttons */
+        .button {
+            background: var(--ink-800);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .button:hover {
+            background: var(--ink-700);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 26, 46, 0.15);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: var(--paper-100);
+            color: var(--ink-700);
+        }
+
+        .button.secondary:hover {
+            background: var(--paper-200);
+        }
+
+        .button.tertiary {
+            background: var(--amber);
+        }
+
+        .button.tertiary:hover {
+            background: var(--amber-light);
+            box-shadow: 0 4px 12px rgba(200, 121, 65, 0.2);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .button-row .button {
+            flex: 1;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        #canvas-container {
+            width: 100%;
+            max-width: 1100px;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 16px 48px rgba(26, 26, 46, 0.1);
+            background: var(--paper);
+            border: 1px solid var(--border);
+        }
+
+        #canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .canvas-caption {
+            margin-top: 16px;
+            text-align: center;
+            font-family: 'Fraunces', serif;
+            font-size: 14px;
+            color: var(--ink-400);
+            font-style: italic;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--ink-300);
+        }
+
+        /* Info Badge */
+        .info-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: var(--amber-bg);
+            color: var(--amber);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .canvas-area {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Control Sidebar -->
+        <div class="sidebar">
+            <div class="info-badge">p5.js · 生成艺术</div>
+            <h1>记忆星图</h1>
+            <div class="subtitle">Memory Constellation — 以艾宾浩斯遗忘曲线为种子，生成记忆痕迹的星座网络</div>
+
+            <!-- Seed Section -->
+            <div class="control-section">
+                <h3>种子 · Seed</h3>
+                <input type="number" id="seed-input" class="seed-input" value="1885" onchange="updateSeed()">
+                <div class="seed-controls">
+                    <button class="button secondary" onclick="previousSeed()">← 上一个</button>
+                    <button class="button secondary" onclick="nextSeed()">下一个 →</button>
+                </div>
+                <button class="button tertiary regen-button" onclick="randomSeedAndUpdate()">↻ 随机种子</button>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="control-section">
+                <h3>参数 · Parameters</h3>
+
+                <!-- Memory Traces (Particle Count) -->
+                <div class="control-group">
+                    <label>记忆痕迹数量</label>
+                    <div class="hint">画布中的星点数量，每颗代表一段记忆</div>
+                    <div class="slider-container">
+                        <input type="range" id="traceCount" min="50" max="400" step="10" value="180" oninput="updateParam('traceCount', this.value)">
+                        <span class="value-display" id="traceCount-value">180</span>
+                    </div>
+                </div>
+
+                <!-- Forgetting Rate -->
+                <div class="control-group">
+                    <label>遗忘速率</label>
+                    <div class="hint">艾宾浩斯衰减系数，越大遗忘越快</div>
+                    <div class="slider-container">
+                        <input type="range" id="forgetRate" min="0.001" max="0.020" step="0.001" value="0.005" oninput="updateParam('forgetRate', this.value)">
+                        <span class="value-display" id="forgetRate-value">0.005</span>
+                    </div>
+                </div>
+
+                <!-- Pulse Interval (Spaced Repetition) -->
+                <div class="control-group">
+                    <label>复习间隔</label>
+                    <div class="hint">间隔重复脉冲周期（帧），模拟 SM-2 算法的复习节奏</div>
+                    <div class="slider-container">
+                        <input type="range" id="pulseInterval" min="60" max="600" step="20" value="240" oninput="updateParam('pulseInterval', this.value)">
+                        <span class="value-display" id="pulseInterval-value">240</span>
+                    </div>
+                </div>
+
+                <!-- Flow Speed -->
+                <div class="control-group">
+                    <label>漂移速度</label>
+                    <div class="hint">Perlin 噪声场驱动的粒子漂移速度</div>
+                    <div class="slider-container">
+                        <input type="range" id="flowSpeed" min="0.2" max="3.0" step="0.1" value="1.0" oninput="updateParam('flowSpeed', this.value)">
+                        <span class="value-display" id="flowSpeed-value">1.0</span>
+                    </div>
+                </div>
+
+                <!-- Noise Scale -->
+                <div class="control-group">
+                    <label>噪声尺度</label>
+                    <div class="hint">控制粒子运动轨迹的混沌程度</div>
+                    <div class="slider-container">
+                        <input type="range" id="noiseScale" min="0.002" max="0.020" step="0.001" value="0.006" oninput="updateParam('noiseScale', this.value)">
+                        <span class="value-display" id="noiseScale-value">0.006</span>
+                    </div>
+                </div>
+
+                <!-- Connection Distance -->
+                <div class="control-group">
+                    <label>连线距离</label>
+                    <div class="hint">粒子间形成知识连线（星座）的最大距离</div>
+                    <div class="slider-container">
+                        <input type="range" id="connectDist" min="40" max="200" step="10" value="100" oninput="updateParam('connectDist', this.value)">
+                        <span class="value-display" id="connectDist-value">100</span>
+                    </div>
+                </div>
+
+                <!-- Trail Fade -->
+                <div class="control-group">
+                    <label>痕迹残留</label>
+                    <div class="hint">画面拖尾的褪色速度，越低拖尾越长</div>
+                    <div class="slider-container">
+                        <input type="range" id="trailFade" min="5" max="60" step="1" value="18" oninput="updateParam('trailFade', this.value)">
+                        <span class="value-display" id="trailFade-value">18</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colors Section -->
+            <div class="control-section">
+                <h3>色彩 · Colors</h3>
+
+                <div class="color-group">
+                    <label>纸页底色</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="colorBg" value="#faf9f7" onchange="updateColor('colorBg', this.value)">
+                        <span class="color-value" id="colorBg-value">#faf9f7</span>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label>墨蓝主色（新记忆）</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="colorInk" value="#1a1a2e" onchange="updateColor('colorInk', this.value)">
+                        <span class="color-value" id="colorInk-value">#1a1a2e</span>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label>琥珀强调色（掌握记忆）</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="colorAmber" value="#c87941" onchange="updateColor('colorAmber', this.value)">
+                        <span class="color-value" id="colorAmber-value">#c87941</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="control-section">
+                <h3>操作 · Actions</h3>
+                <div class="button-row">
+                    <button class="button" onclick="resetCanvas()">重置画布</button>
+                    <button class="button secondary" onclick="saveCanvas2()">保存图片</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area">
+            <div id="canvas-container" class="loading">载入中…</div>
+            <p class="canvas-caption">每一颗星点是一段记忆，亮度随遗忘曲线衰减；每隔数秒的脉冲是间隔重复的呼吸；连线编织出知识的星座。</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 记忆星图生成艺术 · Memory Constellation Generative Art
+        // 概念种子: Ebbinghaus Forgetting Curve  R = e^(-t/S)
+        // ============================================================
+
+        let currentSeed = 1885;
+        let traces = [];
+        let frameCounter = 0;
+        let pulseWave = 0;
+
+        // Parameters
+        let params = {
+            traceCount: 180,
+            forgetRate: 0.005,
+            pulseInterval: 240,
+            flowSpeed: 1.0,
+            noiseScale: 0.006,
+            connectDist: 100,
+            trailFade: 18,
+        };
+
+        // Colors
+        let colors = {
+            colorBg: '#faf9f7',
+            colorInk: '#1a1a2e',
+            colorAmber: '#c87941',
+        };
+
+        // ---- Memory Trace Particle Class ----
+        class MemoryTrace {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.strength = random(0.6, 1.0);   // 记忆保持率 R, 0~1
+                this.stability = random(50, 150);    // 记忆稳定性 S
+                this.lastReview = 0;                 // 上次"复习"时的帧数
+                this.connections = 0;                // 连接数（连通度）
+                this.size = random(2, 5);
+                this.noiseOffset = random(1000);
+                this.age = 0;
+            }
+
+            update() {
+                this.age++;
+
+                // Perlin noise flow field — 记忆的漂移
+                let angle = noise(
+                    this.x * params.noiseScale,
+                    this.y * params.noiseScale,
+                    this.noiseOffset + frameCounter * 0.002
+                ) * TWO_PI * 2;
+
+                this.vx = cos(angle) * params.flowSpeed;
+                this.vy = sin(angle) * params.flowSpeed;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // 环绕边界
+                if (this.x < -20) this.x = width + 20;
+                if (this.x > width + 20) this.x = -20;
+                if (this.y < -20) this.y = height + 20;
+                if (this.y > height + 20) this.y = -20;
+
+                // 艾宾浩斯遗忘曲线: R = e^(-t/S)
+                // t = 当前帧 - 上次复习帧, S = stability
+                let timeSinceReview = frameCounter - this.lastReview;
+                this.strength = exp(-timeSinceReview * params.forgetRate / (this.stability / 100));
+
+                // 间隔重复脉冲 — 复习呼吸
+                if (pulseWave > 0 && this.strength < 0.35) {
+                    // 低强度记忆优先被脉冲触发
+                    if (random() < pulseWave * 0.3) {
+                        this.strength = random(0.7, 1.0);
+                        this.lastReview = frameCounter;
+                        this.stability += random(5, 15); // 复习增强稳定性
+                    }
+                }
+            }
+
+            display() {
+                let cBg = color(colors.colorBg);
+                let cInk = color(colors.colorInk);
+                let cAmber = color(colors.colorAmber);
+
+                // 根据连接数决定颜色：高连通度 → 琥珀色（掌握的枢纽知识）
+                let isHub = this.connections > 5;
+                let baseColor = isHub ? cAmber : cInk;
+
+                // 粒子核心
+                let alpha = this.strength * 255;
+                let displaySize = this.size * (0.5 + this.strength * 0.8);
+
+                // 外层光晕（柔化）
+                noStroke();
+                let glowAlpha = this.strength * 40;
+                fill(red(baseColor), green(baseColor), blue(baseColor), glowAlpha);
+                ellipse(this.x, this.y, displaySize * 3.5);
+
+                // 中层
+                fill(red(baseColor), green(baseColor), blue(baseColor), glowAlpha * 2);
+                ellipse(this.x, this.y, displaySize * 2);
+
+                // 核心
+                fill(red(baseColor), green(baseColor), blue(baseColor), alpha);
+                ellipse(this.x, this.y, displaySize);
+
+                // 枢纽星额外光晕
+                if (isHub && this.strength > 0.3) {
+                    fill(red(cAmber), green(cAmber), blue(cAmber), this.strength * 25);
+                    ellipse(this.x, this.y, displaySize * 5);
+                }
+
+                // 即将熄灭的记忆 — 微弱闪烁
+                if (this.strength < 0.2 && this.strength > 0.01) {
+                    let flicker = sin(frameCounter * 0.1 + this.noiseOffset) * 0.5 + 0.5;
+                    fill(red(baseColor), green(baseColor), blue(baseColor), flicker * 30);
+                    ellipse(this.x, this.y, displaySize * 1.5);
+                }
+            }
+        }
+
+        // ---- p5.js Setup ----
+        function setup() {
+            let container = document.getElementById('canvas-container');
+            let w = min(container.offsetWidth, 1100);
+            let h = w * 0.72;
+            let canvas = createCanvas(w, h);
+            canvas.parent('canvas-container');
+            container.classList.remove('loading');
+
+            randomSeed(currentSeed);
+            noiseSeed(currentSeed);
+
+            initTraces();
+        }
+
+        function initTraces() {
+            traces = [];
+            for (let i = 0; i < params.traceCount; i++) {
+                traces.push(new MemoryTrace(random(width), random(height)));
+            }
+        }
+
+        // ---- p5.js Draw Loop ----
+        function draw() {
+            // 拖尾褪色 — 半透明纸页底色覆盖
+            let cBg = color(colors.colorBg);
+            noStroke();
+            fill(red(cBg), green(cBg), blue(cBg), params.trailFade);
+            rect(0, 0, width, height);
+
+            frameCounter++;
+
+            // 间隔重复脉冲 — 周期性"复习呼吸"
+            let pulsePhase = frameCounter % params.pulseInterval;
+            if (pulsePhase < 30) {
+                pulseWave = 1.0 - (pulsePhase / 30);
+            } else {
+                pulseWave = 0;
+            }
+
+            // 更新所有记忆痕迹
+            for (let t of traces) {
+                t.update();
+            }
+
+            // 计算连接数并绘制连线（知识星座网络）
+            let cInk = color(colors.colorInk);
+            let cAmber = color(colors.colorAmber);
+
+            for (let t of traces) {
+                t.connections = 0;
+            }
+
+            for (let i = 0; i < traces.length; i++) {
+                for (let j = i + 1; j < traces.length; j++) {
+                    let dx = traces[i].x - traces[j].x;
+                    let dy = traces[i].y - traces[j].y;
+                    let dist = sqrt(dx * dx + dy * dy);
+
+                    if (dist < params.connectDist) {
+                        traces[i].connections++;
+                        traces[j].connections++;
+
+                        // 连线透明度 = 两端记忆强度 × 距离衰减
+                        let combinedStrength = (traces[i].strength + traces[j].strength) / 2;
+                        let distFactor = 1 - (dist / params.connectDist);
+                        let lineAlpha = combinedStrength * distFactor * 120;
+
+                        if (lineAlpha > 2) {
+                            // 高连通度节点之间的连线偏琥珀
+                            let isHubLine = traces[i].connections > 4 || traces[j].connections > 4;
+                            let lineColor = isHubLine ? cAmber : cInk;
+
+                            stroke(red(lineColor), green(lineColor), blue(lineColor), lineAlpha);
+                            strokeWeight(combinedStrength * 1.2);
+                            line(traces[i].x, traces[i].y, traces[j].x, traces[j].y);
+                        }
+                    }
+                }
+            }
+
+            // 绘制所有记忆痕迹
+            for (let t of traces) {
+                t.display();
+            }
+
+            // 脉冲波纹视觉效果
+            if (pulseWave > 0) {
+                noFill();
+                let rippleR = (1.0 - pulseWave) * max(width, height) * 0.8;
+                stroke(red(cAmber), green(cAmber), blue(cAmber), pulseWave * 30);
+                strokeWeight(2);
+                ellipse(width / 2, height / 2, rippleR * 2);
+
+                stroke(red(cAmber), green(cAmber), blue(cAmber), pulseWave * 15);
+                strokeWeight(1);
+                ellipse(width / 2, height / 2, rippleR * 1.5);
+            }
+        }
+
+        // ---- Window Resize ----
+        function windowResized() {
+            let container = document.getElementById('canvas-container');
+            let w = min(container.offsetWidth, 1100);
+            let h = w * 0.72;
+            resizeCanvas(w, h);
+        }
+
+        // ============================================================
+        // UI Control Functions
+        // ============================================================
+
+        function updateSeed() {
+            let input = document.getElementById('seed-input');
+            currentSeed = parseInt(input.value) || 0;
+            randomSeed(currentSeed);
+            noiseSeed(currentSeed);
+            initTraces();
+            frameCounter = 0;
+        }
+
+        function previousSeed() {
+            currentSeed--;
+            document.getElementById('seed-input').value = currentSeed;
+            updateSeed();
+        }
+
+        function nextSeed() {
+            currentSeed++;
+            document.getElementById('seed-input').value = currentSeed;
+            updateSeed();
+        }
+
+        function randomSeedAndUpdate() {
+            currentSeed = floor(random(1, 99999));
+            document.getElementById('seed-input').value = currentSeed;
+            updateSeed();
+        }
+
+        function updateParam(name, value) {
+            params[name] = parseFloat(value);
+            document.getElementById(name + '-value').textContent = value;
+
+            // 粒子数量变化时重新初始化
+            if (name === 'traceCount') {
+                randomSeed(currentSeed);
+                noiseSeed(currentSeed);
+                initTraces();
+            }
+        }
+
+        function updateColor(name, value) {
+            colors[name] = value;
+            document.getElementById(name + '-value').textContent = value;
+        }
+
+        function resetCanvas() {
+            randomSeed(currentSeed);
+            noiseSeed(currentSeed);
+            initTraces();
+            frameCounter = 0;
+            let cBg = color(colors.colorBg);
+            background(red(cBg), green(cBg), blue(cBg));
+        }
+
+        function saveCanvas2() {
+            saveCanvas('memory-constellation-seed-' + currentSeed, 'png');
+        }
+    </script>
+</body>
+</html>

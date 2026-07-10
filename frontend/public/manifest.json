@@ -1,0 +1,21 @@
+{
+  "name": "记忆星图",
+  "short_name": "记忆星图",
+  "description": "AI 智能复习引擎",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf9f7",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
