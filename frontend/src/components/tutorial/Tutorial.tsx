@@ -15,29 +15,22 @@ import {
 
 export const STORAGE_KEY = "tutorial_completed_v2"
 
-/* ===========================================================
-   步骤主色调 — 每步一种电影感强调色
-   =========================================================== */
+/* ── 每步强调色（白底版，用深色系） ── */
 interface StepAccent {
   name: string
   hex: string
   rgb: string
 }
-
 const ACCENTS: StepAccent[] = [
-  { name: "indigo", hex: "#6366f1", rgb: "99, 102, 241" },
-  { name: "cyan", hex: "#06b6d4", rgb: "6, 182, 212" },
-  { name: "purple", hex: "#a855f7", rgb: "168, 85, 247" },
-  { name: "amber", hex: "#f59e0b", rgb: "245, 158, 11" },
-  { name: "teal", hex: "#14b8a6", rgb: "20, 184, 166" },
-  { name: "rose", hex: "#f43f5e", rgb: "244, 63, 94" },
-  { name: "blue", hex: "#3b82f6", rgb: "59, 130, 246" },
+  { name: "indigo", hex: "#4338ca", rgb: "67, 56, 202" },
+  { name: "cyan",   hex: "#0e7490", rgb: "14, 116, 144" },
+  { name: "purple", hex: "#7e22ce", rgb: "126, 34, 206" },
+  { name: "amber",  hex: "#b45309", rgb: "180, 83, 9" },
+  { name: "teal",   hex: "#0f766e", rgb: "15, 118, 110" },
+  { name: "rose",   hex: "#be123c", rgb: "190, 18, 60" },
+  { name: "blue",   hex: "#1d4ed8", rgb: "29, 78, 216" },
 ]
 
-/* ===========================================================
-   STEP DATA — 保持原有 7 步及其文本内容
-   视觉演示替换为：产品截图背景 + 悬浮特性卡片
-   =========================================================== */
 interface TutorialStepData {
   title: string
   description: string
@@ -157,8 +150,7 @@ const steps: TutorialStepData[] = [
 ]
 
 /* ===========================================================
-   CINEMATIC STEP VIEW — 单步全屏视图
-   多层暗色 + 产品截图视差背景 + 3D 悬浮特性卡
+   STEP VIEW — 白底版单步视图
    =========================================================== */
 interface StepViewProps {
   step: TutorialStepData
@@ -174,7 +166,7 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* ── 产品截图视差背景 ── */}
+      {/* 产品截图背景 — 右侧低透明度 */}
       <div
         className="parallax-bg pointer-events-none absolute inset-0"
         style={{
@@ -182,29 +174,27 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
           backgroundSize: "cover",
           backgroundPosition: "right center",
           backgroundRepeat: "no-repeat",
-          opacity: 0.15,
-          mixBlendMode: "luminosity",
+          opacity: 0.06,
+          mixBlendMode: "multiply",
         }}
       />
-
-      {/* ── 左侧渐隐遮罩，让背景图集中在右侧 ── */}
+      {/* 左侧白色渐隐遮罩 */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, rgb(13,14,16) 0%, rgb(13,14,16) 32%, rgba(13,14,16,0.88) 52%, rgba(13,14,16,0.55) 100%)",
+            "linear-gradient(90deg, rgb(255,255,255) 0%, rgb(255,255,255) 30%, rgba(255,255,255,0.92) 55%, rgba(255,255,255,0.7) 100%)",
         }}
       />
-
-      {/* ── 步骤主色调晕染 ── */}
+      {/* 步骤主色调淡晕 */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(120% 80% at 85% 50%, rgba(${accent.rgb}, 0.14) 0%, transparent 60%)`,
+          background: `radial-gradient(120% 80% at 85% 50%, rgba(${accent.rgb}, 0.06) 0%, transparent 60%)`,
         }}
       />
 
-      {/* ── 巨大步骤编号水印（带主色辉光） ── */}
+      {/* 巨大步骤编号 — 白底用深色描边 */}
       <div className="pointer-events-none absolute top-0 left-0 p-6 lg:p-12 xl:p-16 z-0">
         <div className="cinematic-number-reveal flex items-baseline gap-3">
           <span
@@ -212,24 +202,24 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
             style={{
               fontSize: "clamp(6rem, 13vw, 11rem)",
               color: "transparent",
-              WebkitTextStroke: `1px rgba(${accent.rgb}, 0.38)`,
-              filter: `drop-shadow(0 0 28px rgba(${accent.rgb}, 0.28))`,
+              WebkitTextStroke: `1.5px rgba(${accent.rgb}, 0.35)`,
+              filter: `drop-shadow(0 0 20px rgba(${accent.rgb}, 0.12))`,
             }}
           >
             {padded}
           </span>
-          <span className="font-mono text-xs text-gray-500 tracking-[0.3em] hidden sm:inline">
+          <span className="font-mono text-xs text-gray-400 tracking-[0.3em] hidden sm:inline">
             / {totalPadded}
           </span>
         </div>
       </div>
 
-      {/* ── 内容栅格：左文 右特性卡 ── */}
+      {/* 内容栅格 */}
       <div
         className="relative z-10 grid h-full grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-10 lg:px-16 xl:px-24 py-16 lg:py-20"
         style={{ transformStyle: "preserve-3d" }}
       >
-        {/* 左侧：文字 */}
+        {/* 左侧文字 */}
         <div className="flex max-w-xl flex-col justify-center">
           {/* 步骤标签 */}
           <div
@@ -243,15 +233,15 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
             <Icon className="h-4 w-4" style={{ color: accent.hex }} />
             <span
               className="font-mono text-[11px] uppercase tracking-[0.35em]"
-              style={{ color: `rgba(${accent.rgb}, 0.85)` }}
+              style={{ color: accent.hex }}
             >
               Step {padded} / {totalPadded}
             </span>
           </div>
 
-          {/* 标题 — font-display weight 400，字距收紧 */}
+          {/* 标题 */}
           <h2
-            className="font-display cinematic-fade-up mb-6 text-4xl font-normal tracking-[-0.02em] text-white sm:text-5xl xl:text-6xl"
+            className="font-display cinematic-fade-up mb-6 text-4xl font-bold tracking-[-0.02em] text-gray-900 sm:text-5xl xl:text-6xl"
             style={{ animationDelay: "220ms" }}
           >
             {step.title}
@@ -259,86 +249,76 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
 
           {/* 描述 */}
           <p
-            className="cinematic-fade-up mb-10 max-w-xl text-base leading-relaxed text-gray-400 lg:text-lg"
+            className="cinematic-fade-up mb-10 max-w-xl text-base leading-relaxed text-gray-500 lg:text-lg"
             style={{ animationDelay: "320ms" }}
           >
             {step.description}
           </p>
 
-          {/* 要点 — 细线编号列表，编号使用主色 */}
+          {/* 要点 */}
           {step.tips.length > 0 && (
             <ul className="max-w-xl">
               {step.tips.map((tip, i) => (
                 <li
                   key={i}
-                  className="cinematic-fade-up flex items-start gap-5 border-t border-white/[0.06] py-4"
+                  className="cinematic-fade-up flex items-start gap-5 border-t border-gray-200 py-4"
                   style={{ animationDelay: `${420 + i * 110}ms` }}
                 >
                   <span
                     className="mt-0.5 w-6 shrink-0 font-mono text-[11px] tracking-[0.2em]"
-                    style={{ color: `rgba(${accent.rgb}, 0.85)` }}
+                    style={{ color: accent.hex }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="flex-1 text-sm leading-relaxed text-gray-300">
+                  <span className="flex-1 text-sm leading-relaxed text-gray-700">
                     {tip}
                   </span>
                 </li>
               ))}
-              <li className="border-t border-white/[0.06]" aria-hidden="true" />
+              <li className="border-t border-gray-200" aria-hidden="true" />
             </ul>
           )}
         </div>
 
-        {/* 右侧：3D 悬浮特性卡 */}
+        {/* 右侧特性卡 — 白底版 */}
         <div
           className="hidden lg:flex items-center justify-center"
           style={{ perspective: "1200px" }}
         >
-          {/* 入场缩放容器 */}
           <div
             className="cinematic-zoom-in relative w-full max-w-sm"
             style={{ animationDelay: "440ms" }}
           >
-            {/* 浮动容器 */}
             <div className="feature-card-float">
-              {/* 卡片本体 */}
               <div
                 className="relative rounded-2xl border p-8 backdrop-blur-xl"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(32,36,39,0.85), rgba(13,14,16,0.92))",
-                  borderColor: `rgba(${accent.rgb}, 0.28)`,
-                  boxShadow: `0 24px 60px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(${accent.rgb}, 0.08), inset 0 1px 0 rgba(255,255,255,0.05)`,
+                  background: "linear-gradient(135deg, rgb(255,255,255), rgb(248,250,252))",
+                  borderColor: `rgba(${accent.rgb}, 0.25)`,
+                  boxShadow: `0 24px 60px -20px rgba(0,0,0,0.12), 0 0 0 1px rgba(${accent.rgb}, 0.06), inset 0 1px 0 rgba(255,255,255,0.8)`,
                 }}
               >
-                {/* 顶部主色细线 */}
                 <span
                   className="cinematic-line-grow absolute -top-px left-8 h-px w-16"
                   style={{ background: accent.hex, animationDelay: "600ms" }}
                 />
-
                 {/* 图标 */}
                 <div
                   className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
                   style={{
-                    background: `linear-gradient(135deg, rgba(${accent.rgb}, 0.28), rgba(${accent.rgb}, 0.1))`,
-                    boxShadow: `0 0 30px rgba(${accent.rgb}, 0.4), inset 0 1px 0 rgba(255,255,255,0.12)`,
-                    border: `1px solid rgba(${accent.rgb}, 0.32)`,
+                    background: `linear-gradient(135deg, rgba(${accent.rgb}, 0.12), rgba(${accent.rgb}, 0.04))`,
+                    boxShadow: `0 0 20px rgba(${accent.rgb}, 0.15), inset 0 1px 0 rgba(255,255,255,0.5)`,
+                    border: `1px solid rgba(${accent.rgb}, 0.2)`,
                   }}
                 >
                   <Icon className="h-7 w-7" style={{ color: accent.hex }} />
                 </div>
-
-                {/* 特性标签 */}
                 <p
                   className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em]"
-                  style={{ color: `rgba(${accent.rgb}, 0.75)` }}
+                  style={{ color: `rgba(${accent.rgb}, 0.7)` }}
                 >
                   Feature Highlight
                 </p>
-
-                {/* 关键点列表 */}
                 <ul className="space-y-4">
                   {step.highlights.map((h, i) => (
                     <li
@@ -349,40 +329,37 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                       <span
                         className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-[10px]"
                         style={{
-                          background: `rgba(${accent.rgb}, 0.16)`,
+                          background: `rgba(${accent.rgb}, 0.08)`,
                           color: accent.hex,
-                          border: `1px solid rgba(${accent.rgb}, 0.32)`,
+                          border: `1px solid rgba(${accent.rgb}, 0.2)`,
                         }}
                       >
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <span className="text-sm font-medium text-gray-200">
+                      <span className="text-sm font-medium text-gray-800">
                         {h}
                       </span>
                     </li>
                   ))}
                 </ul>
-
-                {/* 底部装饰 */}
-                <div className="mt-7 flex items-center justify-between border-t border-white/[0.06] pt-5">
-                  <span className="font-mono text-[10px] tracking-[0.2em] text-gray-500">
+                <div className="mt-7 flex items-center justify-between border-t border-gray-200 pt-5">
+                  <span className="font-mono text-[10px] tracking-[0.2em] text-gray-400">
                     MAPS · v2
                   </span>
                   <span
                     className="h-2 w-2 rounded-full"
                     style={{
                       background: accent.hex,
-                      boxShadow: `0 0 12px ${accent.hex}`,
+                      boxShadow: `0 0 8px ${accent.hex}`,
                     }}
                   />
                 </div>
               </div>
-
-              {/* 卡片外光晕 */}
+              {/* 卡片外淡晕 */}
               <div
                 className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl"
                 style={{
-                  background: `radial-gradient(circle at 50% 50%, rgba(${accent.rgb}, 0.18), transparent 70%)`,
+                  background: `radial-gradient(circle at 50% 50%, rgba(${accent.rgb}, 0.08), transparent 70%)`,
                   filter: "blur(22px)",
                 }}
               />
@@ -395,8 +372,7 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
 }
 
 /* ===========================================================
-   MAIN TUTORIAL COMPONENT — 电影感全屏引导
-   多层暗色背景 + 视差 + 3D 透视 + 步骤主色
+   MAIN TUTORIAL — 白底版
    =========================================================== */
 interface TutorialProps {
   open: boolean
@@ -407,7 +383,6 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState<1 | -1>(1)
 
-  // 打开时锁定背景滚动并重置到首步
   useEffect(() => {
     if (open) {
       setCurrentStep(0)
@@ -441,7 +416,6 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
     }
   }
 
-  // 键盘导航
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => {
@@ -481,47 +455,30 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
       role="dialog"
       aria-modal="true"
       aria-label="新手引导"
-      style={{ background: "rgb(13, 14, 16)" }}
+      style={{ background: "rgb(255, 255, 255)" }}
     >
-      {/* ── 多层暗色背景：cipherdigital 调色板 ── */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(20,22,24,0.95), rgba(13,14,16,0.98))",
-        }}
-      />
-      {/* 顶部主色柔光（随步骤变化） */}
+      {/* 主色淡晕顶部 */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-64 transition-all duration-700"
         style={{
-          background: `linear-gradient(180deg, rgba(${accent.rgb}, 0.07), transparent)`,
-        }}
-      />
-      {/* 胶片颗粒噪点 */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          backgroundSize: "200px 200px",
+          background: `linear-gradient(180deg, rgba(${accent.rgb}, 0.04), transparent)`,
         }}
       />
 
-      {/* 顶部栏：品牌 + 跳过 */}
+      {/* 顶部栏 */}
       <div className="relative z-20 flex shrink-0 items-center justify-between px-6 pt-6 sm:px-10 lg:px-16 lg:pt-8">
-        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-500">
+        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-400">
           Memory · Starmap
         </span>
         <button
           onClick={complete}
-          className="text-sm tracking-wide text-gray-500 transition-colors duration-200 hover:text-white"
+          className="text-sm tracking-wide text-gray-400 transition-colors duration-200 hover:text-gray-900"
         >
           跳过
         </button>
       </div>
 
-      {/* 主内容区：全屏步骤视图，横向滑动 + 渐显过渡 */}
+      {/* 主内容 */}
       <div className="relative z-10 min-h-0 flex-1 overflow-y-auto lg:overflow-hidden">
         <div key={currentStep} className={cn("absolute inset-0", slideClass)}>
           <StepView
@@ -532,24 +489,24 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
         </div>
       </div>
 
-      {/* 底部栏：进度 + 滚动指示 + 导航 */}
+      {/* 底部栏 */}
       <div className="relative z-20 shrink-0 px-6 pb-8 pt-6 sm:px-10 lg:px-16">
-        {/* 进度细线 — 主色渐变 */}
+        {/* 进度细线 */}
         <div className="mb-5">
-          <div className="relative h-px w-full overflow-hidden bg-white/[0.08]">
+          <div className="relative h-px w-full overflow-hidden bg-gray-200">
             <div
               className="absolute top-0 left-0 h-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 width: `${progress}%`,
-                background: `linear-gradient(90deg, rgba(${accent.rgb}, 0.4), ${accent.hex})`,
-                boxShadow: `0 0 12px rgba(${accent.rgb}, 0.6)`,
+                background: `linear-gradient(90deg, rgba(${accent.rgb}, 0.3), ${accent.hex})`,
+                boxShadow: `0 0 8px rgba(${accent.rgb}, 0.3)`,
               }}
             />
           </div>
-          <div className="mt-3 flex items-center justify-between font-mono text-[11px] tracking-[0.2em] text-gray-500">
+          <div className="mt-3 flex items-center justify-between font-mono text-[11px] tracking-[0.2em] text-gray-400">
             <span>
               {String(currentStep + 1).padStart(2, "0")}{" "}
-              <span className="text-gray-600">
+              <span className="text-gray-300">
                 / {String(steps.length).padStart(2, "0")}
               </span>
             </span>
@@ -557,7 +514,7 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
           </div>
         </div>
 
-        {/* 导航 + 滚动指示器 */}
+        {/* 导航 */}
         <div className="flex items-center justify-between">
           <button
             onClick={handlePrev}
@@ -565,20 +522,19 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
             className={cn(
               "text-sm tracking-wide transition-colors duration-200",
               currentStep === 0
-                ? "cursor-not-allowed text-gray-700"
-                : "text-gray-400 hover:text-white",
+                ? "cursor-not-allowed text-gray-300"
+                : "text-gray-500 hover:text-gray-900",
             )}
           >
             上一步
           </button>
 
-          {/* 滚动指示器（脉冲） */}
           <div className="flex flex-1 justify-center">
             <div className="scroll-pulse flex flex-col items-center gap-0.5">
-              <span className="font-mono text-[9px] tracking-[0.3em] text-gray-600">
+              <span className="font-mono text-[9px] tracking-[0.3em] text-gray-300">
                 SCROLL
               </span>
-              <ChevronDown className="h-3.5 w-3.5 text-gray-600" />
+              <ChevronDown className="h-3.5 w-3.5 text-gray-300" />
             </div>
           </div>
 
@@ -586,9 +542,8 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
             onClick={handleNext}
             className="group flex items-center gap-3 px-8 py-3 text-sm font-medium tracking-wide text-white transition-all duration-300 active:scale-[0.98]"
             style={{
-              background: "linear-gradient(135deg, #c87941, #e8a87c)",
-              boxShadow:
-                "0 8px 24px -8px rgba(200, 121, 65, 0.5), 0 0 0 1px rgba(232, 168, 124, 0.2)",
+              background: "linear-gradient(135deg, #1a1a1a, #333)",
+              boxShadow: "0 8px 24px -8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1)",
             }}
           >
             {isLast ? "开始使用" : "继续"}
