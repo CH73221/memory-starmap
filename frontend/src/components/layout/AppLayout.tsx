@@ -215,9 +215,9 @@ export default function AppLayout() {
 
         {/* 页面内容 — blur 过渡 */}
         <main className="flex-1 overflow-auto bg-paper-50 p-6 lg:p-8 smooth-scroll relative">
-          {/* 内容区间隙装饰：流动 SVG 路径 — 极低透明度 */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.10]">
-            <BackgroundPathsLayer />
+          {/* 内容区间隙装饰：流动 SVG 路径 */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.15]">
+            <BackgroundPathsLayer vibrant />
           </div>
           {/* 内容区间隙装饰：扫描线 */}
           <div className="content-scan-line" />

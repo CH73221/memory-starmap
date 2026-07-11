@@ -24,8 +24,8 @@ function FloatingPaths({
   visible: boolean
   vibrant?: boolean
 }) {
-  const opacityBase = vibrant ? 0.12 : 0.05
-  const opacityStep = vibrant ? 0.03 : 0.015
+  const opacityBase = vibrant ? 0.25 : 0.1
+  const opacityStep = vibrant ? 0.05 : 0.02
 
   // 预计算路径数据和动画时长，避免 render 中随机
   const paths = useMemo(() => {
@@ -65,7 +65,7 @@ function FloatingPaths({
               visible
                 ? {
                     pathLength: 1,
-                    opacity: [0.2, 0.5, 0.2],
+                    opacity: [0.4, 0.8, 0.4],
                     pathOffset: [0, 1, 0],
                   }
                 : { opacity: 0 }
