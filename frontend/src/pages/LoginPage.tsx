@@ -177,7 +177,7 @@ export default function LoginPage() {
       <div className="spotlight-ring" />
 
       {/* ═══ 第 2.5 层：流动 SVG 路径 — 位于聚光灯之上，始终可见 ═══ */}
-      <div className="absolute inset-0 z-[6] pointer-events-none opacity-50">
+      <div className="absolute inset-0 z-[6] pointer-events-none">
         <BackgroundPathsLayer vibrant />
       </div>
 

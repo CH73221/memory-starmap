@@ -24,8 +24,9 @@ function FloatingPaths({
   visible: boolean
   vibrant?: boolean
 }) {
-  const opacityBase = vibrant ? 0.4 : 0.15
-  const opacityStep = vibrant ? 0.08 : 0.03
+  const opacityBase = vibrant ? 0.5 : 0.2
+  const opacityStep = vibrant ? 0.04 : 0.02
+  const animOpacity = vibrant ? [0.5, 1, 0.5] : [0.3, 0.6, 0.3]
 
   // 预计算路径数据和动画时长，避免 render 中随机
   const paths = useMemo(() => {
@@ -38,18 +39,18 @@ function FloatingPaths({
       } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
         684 - i * 5 * position
       } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-      width: 1 + i * 0.15,
+      width: vibrant ? 1.5 + i * 0.2 : 0.8 + i * 0.1,
       duration: 20 + ((i * 7 + position * 13) % 10),
     }))
-  }, [position])
+  }, [position, vibrant])
 
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
         className="w-full h-full"
-        viewBox="0 0 696 316"
+        viewBox="-450 -270 1200 1200"
         fill="none"
-        preserveAspectRatio="none"
+        preserveAspectRatio="xMidYMid slice"
         style={{ willChange: "transform", color: "#0f172a" }}
       >
         <title>Background Paths</title>
@@ -64,7 +65,7 @@ function FloatingPaths({
             animate={
               visible
                 ? {
-                    opacity: [0.4, 0.8, 0.4],
+                    opacity: animOpacity,
                   }
                 : { opacity: 0 }
             }
