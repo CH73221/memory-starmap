@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion } from "motion/react"
+import { BackgroundPathsLayer } from "@/components/ui/background-paths"
 import {
   Brain,
   Upload,
@@ -194,10 +196,14 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
         }}
       />
 
-      {/* 巨大步骤编号 — 白底用深色描边 */}
+      {/* 巨大步骤编号 — motion 弹跳入场 + 描边动画 */}
       <div className="pointer-events-none absolute top-0 left-0 p-6 lg:p-12 xl:p-16 z-0">
-        <div className="cinematic-number-reveal flex items-baseline gap-3">
-          <span
+        <div className="flex items-baseline gap-3">
+          <motion.span
+            key={padded}
+            initial={{ scale: 0.6, opacity: 0, rotateX: -45 }}
+            animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+            transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.1 }}
             className="font-display font-thin leading-none tracking-tighter select-none"
             style={{
               fontSize: "clamp(6rem, 13vw, 11rem)",
@@ -207,10 +213,15 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
             }}
           >
             {padded}
-          </span>
-          <span className="font-mono text-xs text-gray-400 tracking-[0.3em] hidden sm:inline">
+          </motion.span>
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="font-mono text-xs text-gray-400 tracking-[0.3em] hidden sm:inline"
+          >
             / {totalPadded}
-          </span>
+          </motion.span>
         </div>
       </div>
 
@@ -222,47 +233,78 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
         {/* 左侧文字 */}
         <div className="flex max-w-xl flex-col justify-center">
           {/* 步骤标签 */}
-          <div
-            className="cinematic-fade-up mb-6 flex items-center gap-4"
-            style={{ animationDelay: "120ms" }}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.12, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 flex items-center gap-4"
           >
-            <span
-              className="cinematic-line-grow h-px w-12"
-              style={{ background: accent.hex, animationDelay: "120ms" }}
+            <motion.span
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="h-px w-12 origin-left"
+              style={{ background: accent.hex }}
             />
-            <Icon className="h-4 w-4" style={{ color: accent.hex }} />
+            <motion.div
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
+            >
+              <Icon className="h-4 w-4" style={{ color: accent.hex }} />
+            </motion.div>
             <span
               className="font-mono text-[11px] uppercase tracking-[0.35em]"
               style={{ color: accent.hex }}
             >
               Step {padded} / {totalPadded}
             </span>
-          </div>
+          </motion.div>
 
-          {/* 标题 */}
-          <h2
-            className="font-display cinematic-fade-up mb-6 text-4xl font-bold tracking-[-0.02em] text-gray-900 sm:text-5xl xl:text-6xl"
-            style={{ animationDelay: "220ms" }}
-          >
-            {step.title}
+          {/* 标题 — 逐字弹跳入场 */}
+          <h2 className="font-display mb-6 text-4xl font-bold tracking-[-0.02em] text-gray-900 sm:text-5xl xl:text-6xl">
+            {step.title.split("").map((char, i) => (
+              <motion.span
+                key={i}
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{
+                  delay: 0.22 + i * 0.035,
+                  type: "spring",
+                  stiffness: 150,
+                  damping: 22,
+                }}
+                className="inline-block"
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
           </h2>
 
           {/* 描述 */}
-          <p
-            className="cinematic-fade-up mb-10 max-w-xl text-base leading-relaxed text-gray-500 lg:text-lg"
-            style={{ animationDelay: "320ms" }}
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-10 max-w-xl text-base leading-relaxed text-gray-500 lg:text-lg"
           >
             {step.description}
-          </p>
+          </motion.p>
 
           {/* 要点 */}
           {step.tips.length > 0 && (
             <ul className="max-w-xl">
               {step.tips.map((tip, i) => (
-                <li
+                <motion.li
                   key={i}
-                  className="cinematic-fade-up flex items-start gap-5 border-t border-gray-200 py-4"
-                  style={{ animationDelay: `${420 + i * 110}ms` }}
+                  initial={{ opacity: 0, x: -15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.42 + i * 0.11,
+                    duration: 0.5,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="flex items-start gap-5 border-t border-gray-200 py-4"
                 >
                   <span
                     className="mt-0.5 w-6 shrink-0 font-mono text-[11px] tracking-[0.2em]"
@@ -273,23 +315,28 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                   <span className="flex-1 text-sm leading-relaxed text-gray-700">
                     {tip}
                   </span>
-                </li>
+                </motion.li>
               ))}
               <li className="border-t border-gray-200" aria-hidden="true" />
             </ul>
           )}
         </div>
 
-        {/* 右侧特性卡 — 白底版 */}
+        {/* 右侧特性卡 — 白底版 + motion 3D 入场 */}
         <div
           className="hidden lg:flex items-center justify-center"
           style={{ perspective: "1200px" }}
         >
-          <div
-            className="cinematic-zoom-in relative w-full max-w-sm"
-            style={{ animationDelay: "440ms" }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, rotateY: 15, z: -50 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0, z: 0 }}
+            transition={{ delay: 0.44, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-sm"
           >
-            <div className="feature-card-float">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
               <div
                 className="relative rounded-2xl border p-8 backdrop-blur-xl"
                 style={{
@@ -298,12 +345,18 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                   boxShadow: `0 24px 60px -20px rgba(0,0,0,0.12), 0 0 0 1px rgba(${accent.rgb}, 0.06), inset 0 1px 0 rgba(255,255,255,0.8)`,
                 }}
               >
-                <span
-                  className="cinematic-line-grow absolute -top-px left-8 h-px w-16"
-                  style={{ background: accent.hex, animationDelay: "600ms" }}
+                <motion.span
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.6, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute -top-px left-8 h-px w-16 origin-left"
+                  style={{ background: accent.hex }}
                 />
                 {/* 图标 */}
-                <div
+                <motion.div
+                  initial={{ scale: 0, rotate: -45 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.55, type: "spring", stiffness: 200, damping: 15 }}
                   className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl"
                   style={{
                     background: `linear-gradient(135deg, rgba(${accent.rgb}, 0.12), rgba(${accent.rgb}, 0.04))`,
@@ -312,19 +365,24 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                   }}
                 >
                   <Icon className="h-7 w-7" style={{ color: accent.hex }} />
-                </div>
-                <p
+                </motion.div>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.65, duration: 0.4 }}
                   className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em]"
                   style={{ color: `rgba(${accent.rgb}, 0.7)` }}
                 >
                   Feature Highlight
-                </p>
+                </motion.p>
                 <ul className="space-y-4">
                   {step.highlights.map((h, i) => (
-                    <li
+                    <motion.li
                       key={i}
-                      className="cinematic-fade-up flex items-center gap-3"
-                      style={{ animationDelay: `${560 + i * 100}ms` }}
+                      initial={{ opacity: 0, x: 15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.56 + i * 0.1, duration: 0.4 }}
+                      className="flex items-center gap-3"
                     >
                       <span
                         className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md font-mono text-[10px]"
@@ -339,14 +397,16 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                       <span className="text-sm font-medium text-gray-800">
                         {h}
                       </span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
                 <div className="mt-7 flex items-center justify-between border-t border-gray-200 pt-5">
                   <span className="font-mono text-[10px] tracking-[0.2em] text-gray-400">
                     MAPS · v2
                   </span>
-                  <span
+                  <motion.span
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="h-2 w-2 rounded-full"
                     style={{
                       background: accent.hex,
@@ -355,16 +415,16 @@ function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
                   />
                 </div>
               </div>
-              {/* 卡片外淡晕 */}
-              <div
-                className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl"
-                style={{
-                  background: `radial-gradient(circle at 50% 50%, rgba(${accent.rgb}, 0.08), transparent 70%)`,
-                  filter: "blur(22px)",
-                }}
-              />
-            </div>
-          </div>
+            </motion.div>
+            {/* 卡片外淡晕 */}
+            <div
+              className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl"
+              style={{
+                background: `radial-gradient(circle at 50% 50%, rgba(${accent.rgb}, 0.08), transparent 70%)`,
+                filter: "blur(22px)",
+              }}
+            />
+          </motion.div>
         </div>
       </div>
     </div>
@@ -457,6 +517,10 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
       aria-label="新手引导"
       style={{ background: "rgb(255, 255, 255)" }}
     >
+      {/* 流线动效背景 */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <BackgroundPathsLayer vibrant />
+      </div>
       {/* 主色淡晕顶部 */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-64 transition-all duration-700"
@@ -467,9 +531,14 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
 
       {/* 顶部栏 */}
       <div className="relative z-20 flex shrink-0 items-center justify-between px-6 pt-6 sm:px-10 lg:px-16 lg:pt-8">
-        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-400">
+        <motion.span
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-400"
+        >
           Memory · Starmap
-        </span>
+        </motion.span>
         <button
           onClick={complete}
           className="text-sm tracking-wide text-gray-400 transition-colors duration-200 hover:text-gray-900"
@@ -494,10 +563,12 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
         {/* 进度细线 */}
         <div className="mb-5">
           <div className="relative h-px w-full overflow-hidden bg-gray-200">
-            <div
-              className="absolute top-0 left-0 h-full transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute top-0 left-0 h-full"
               style={{
-                width: `${progress}%`,
                 background: `linear-gradient(90deg, rgba(${accent.rgb}, 0.3), ${accent.hex})`,
                 boxShadow: `0 0 8px rgba(${accent.rgb}, 0.3)`,
               }}
@@ -538,9 +609,11 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
             </div>
           </div>
 
-          <button
+          <motion.button
             onClick={handleNext}
-            className="group flex items-center gap-3 px-8 py-3 text-sm font-medium tracking-wide text-white transition-all duration-300 active:scale-[0.98]"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="group flex items-center gap-3 px-8 py-3 text-sm font-medium tracking-wide text-white"
             style={{
               background: "linear-gradient(135deg, #1a1a1a, #333)",
               boxShadow: "0 8px 24px -8px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1)",
@@ -548,7 +621,7 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
           >
             {isLast ? "开始使用" : "继续"}
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>

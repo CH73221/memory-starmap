@@ -24,8 +24,8 @@ function FloatingPaths({
   visible: boolean
   vibrant?: boolean
 }) {
-  const opacityBase = vibrant ? 0.15 : 0.04
-  const opacityStep = vibrant ? 0.035 : 0.012
+  const opacityBase = vibrant ? 0.12 : 0.05
+  const opacityStep = vibrant ? 0.03 : 0.015
 
   // 预计算路径数据和动画时长，避免 render 中随机
   const paths = useMemo(() => {
@@ -46,7 +46,7 @@ function FloatingPaths({
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
-        className="w-full h-full text-amber"
+        className="w-full h-full text-slate-900"
         viewBox="0 0 696 316"
         fill="none"
         preserveAspectRatio="xMidYMid slice"
