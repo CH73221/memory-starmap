@@ -60,13 +60,11 @@ function FloatingPaths({
             stroke="currentColor"
             strokeWidth={path.width}
             strokeOpacity={opacityBase + path.id * opacityStep}
-            initial={{ pathLength: 0.3, opacity: 0.4 }}
+            initial={{ opacity: 0 }}
             animate={
               visible
                 ? {
-                    pathLength: 1,
-                    opacity: [0.5, 1, 0.5],
-                    pathOffset: [0, 1, 0],
+                    opacity: [0.4, 0.8, 0.4],
                   }
                 : { opacity: 0 }
             }
