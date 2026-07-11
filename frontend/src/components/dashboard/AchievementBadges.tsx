@@ -81,8 +81,9 @@ export function AchievementBadges() {
       <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
         {achievements.map((a, i) => {
           const Icon = getIcon(a.icon)
+          const progressNum = typeof a.progress === 'number' ? a.progress : (a.unlocked ? 1 : 0)
           const progressPct = a.progress_target
-            ? ((a.progress || 0) / a.progress_target) * 100
+            ? (progressNum / a.progress_target) * 100
             : a.unlocked ? 100 : 0
           const rarity = RARITY_STYLES[a.rarity]
 
@@ -117,7 +118,7 @@ export function AchievementBadges() {
                 <p className="text-[10px] text-ink-400 font-sans">{a.description}</p>
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className={`text-[10px] font-semibold font-sans ${rarity.color}`}>{rarity.label}级</span>
-                  <span className="text-[10px] text-ink-400 font-sans">{a.progress || 0}/{a.progress_target || 0}</span>
+                  <span className="text-[10px] text-ink-400 font-sans">{progressNum}/{a.progress_target || 0}</span>
                 </div>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full border-4 border-transparent border-t-white" />
               </div>

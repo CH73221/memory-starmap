@@ -44,8 +44,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               页面出错了
             </h2>
 
-            <p className="text-sm text-ink-400 mb-6 leading-relaxed">
-              {this.state.error?.message || "发生了未知错误，请稍后重试。"}
+            <p className="text-sm text-ink-400 mb-6 leading-relaxed whitespace-pre-wrap break-all">
+              {typeof this.state.error?.message === 'string' ? this.state.error.message : JSON.stringify(this.state.error?.message) || "发生了未知错误，请稍后重试。"}
             </p>
 
             <Button
