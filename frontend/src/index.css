@@ -1381,8 +1381,95 @@ html {
   to { opacity: 0; transform: translateY(-30px); }
 }
 
+/* ── 琥珀线从中心向两侧展开 ── */
+@keyframes rydenLineExpand {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+.ryden-line-expand {
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  animation: rydenLineExpand 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* ── 标题字距由宽收紧（配合逐字揭示） ── */
 @keyframes rydenTitleTrack {
   from { letter-spacing: 0.4em; }
   to { letter-spacing: 0.02em; }
+}
+
+/* ════════════════════════════════════════════════
+   CINEMATIC TUTORIAL v2 — 多层暗色 + 视差 + 3D 透视
+   参照 cipherdigital.com 的电影视角变换风格
+   ════════════════════════════════════════════════ */
+
+/* ── 电影感缩放入场：Z 轴位移 + 缩放 + 渐显 ── */
+@keyframes cinematicZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateZ(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+.cinematic-zoom-in {
+  opacity: 0;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  animation: cinematicZoomIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 视差背景浮动：产品截图的微妙位移与透视 ── */
+@keyframes parallaxBg {
+  0%, 100% {
+    transform: perspective(1000px) rotateY(-5deg) scale(1.1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: perspective(1000px) rotateY(-5deg) scale(1.1) translate3d(-1.5%, -1%, 0);
+  }
+}
+.parallax-bg {
+  animation: parallaxBg 20s ease-in-out infinite;
+  will-change: transform;
+  transform-origin: right center;
+}
+
+/* ── 特性卡片 3D 浮动 ── */
+@keyframes featureCardFloat {
+  0%, 100% {
+    transform: perspective(1200px) rotateX(2deg) rotateY(-3deg) translateY(0);
+  }
+  50% {
+    transform: perspective(1200px) rotateX(2deg) rotateY(-3deg) translateY(-10px);
+  }
+}
+.feature-card-float {
+  animation: featureCardFloat 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── 滚动指示器脉冲 ── */
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.25; transform: translateY(0); }
+  50% { opacity: 0.9; transform: translateY(4px); }
+}
+.scroll-pulse {
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+/* ── 减动效偏好兜底 ── */
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-zoom-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .parallax-bg,
+  .feature-card-float,
+  .scroll-pulse {
+    animation: none !important;
+  }
 }
