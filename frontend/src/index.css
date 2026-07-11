@@ -1224,17 +1224,6 @@ html {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── 逐字滑入（侧向） ── */
-.boot-letter-side {
-  display: inline-block;
-  opacity: 0;
-  transform: translateX(-30px);
-  animation: bootLetterSide 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes bootLetterSide {
-  to { opacity: 1; transform: translateX(0); }
-}
-
 /* ── 大号文字模糊聚焦 ── */
 .boot-blur-focus {
   animation: bootBlurFocus 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -1244,43 +1233,6 @@ html {
 }
 @keyframes bootBlurFocus {
   to { opacity: 1; filter: blur(0); transform: scale(1); }
-}
-
-/* ── LOGO 变体形变 ── */
-.logo-variant-morph {
-  animation: logoVariantMorph 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes logoVariantMorph {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) rotate(-180deg);
-    filter: blur(16px);
-  }
-  30% {
-    opacity: 0.4;
-    transform: scale(0.6) rotate(-90deg);
-    filter: blur(8px);
-  }
-  60% {
-    opacity: 0.8;
-    transform: scale(1.1) rotate(-20deg);
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-    filter: blur(0);
-  }
-}
-
-/* ── 星座连线绘制 ── */
-.constellation-form {
-  animation: constellationForm 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-}
-@keyframes constellationForm {
-  to { stroke-dashoffset: 0; }
 }
 
 /* ── 欢迎文字上滑 ── */
@@ -1302,11 +1254,135 @@ html {
   to { clip-path: circle(0% at 50% 50%); }
 }
 
-/* ── 进度条加载 ── */
-.boot-progress-bar {
-  animation: bootProgressFill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  width: 0;
+/* ════════════════════════════════════════════════
+   CINEMATIC TUTORIAL — 全屏电影感引导过渡动画
+   参照 cipherdigital.com 的横向滑动 + 渐显风格
+   ════════════════════════════════════════════════ */
+
+/* ── 步骤切换：从右侧滑入 + 渐显 ── */
+@keyframes cinematicSlideIn {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: translateX(0); }
 }
-@keyframes bootProgressFill {
-  to { width: 100%; }
+.cinematic-slide-in {
+  opacity: 0;
+  animation: cinematicSlideIn 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 反向切换：从左侧滑入 + 渐显（上一步时使用） ── */
+@keyframes cinematicSlideInReverse {
+  from { opacity: 0; transform: translateX(-48px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.cinematic-slide-in-reverse {
+  opacity: 0;
+  animation: cinematicSlideInReverse 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 渐显 + 上浮（错峰延迟） ── */
+@keyframes cinematicFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cinematic-fade-up {
+  opacity: 0;
+  animation: cinematicFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 水平线条从左生长 ── */
+@keyframes cinematicLineGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.cinematic-line-grow {
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: cinematicLineGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 大号步骤数字渐显 + 微缩放 ── */
+@keyframes cinematicNumberReveal {
+  from { opacity: 0; transform: scale(1.08); }
+  to { opacity: 1; transform: scale(1); }
+}
+.cinematic-number-reveal {
+  opacity: 0;
+  animation: cinematicNumberReveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── 电影感引导：减动效偏好兜底（确保内容可见） ── */
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-slide-in,
+  .cinematic-slide-in-reverse,
+  .cinematic-fade-up,
+  .cinematic-number-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .cinematic-line-grow {
+    transform: scaleX(1) !important;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   RYDEN BOOT SEQUENCE — 品牌 LOGO 动画
+   参照 ryden.co.jp 日式创意 agency 大字排版风格
+   纯 CSS 排版驱动，无 canvas / 粒子 / 星轨
+   ════════════════════════════════════════════════ */
+
+/* ── 遮幕淡入 ── */
+.ryden-overlay-in {
+  animation: rydenOverlayIn 0.3s ease forwards;
+}
+@keyframes rydenOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── 琥珀细线从左向右画出 ── */
+.ryden-line-draw {
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: rydenLineDraw 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes rydenLineDraw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ── 逐字遮罩揭示（clip-path inset 由右向左揭开） ── */
+.ryden-letter-reveal {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  animation: rydenLetterReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes rydenLetterReveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* ── 副标题 / 欢迎语淡入（轻微上浮） ── */
+.ryden-fade-in {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rydenFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes rydenFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 整体向上溶解消散 ── */
+.ryden-dissolve-up {
+  animation: rydenDissolveUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes rydenDissolveUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-30px); }
+}
+
+/* ── 标题字距由宽收紧（配合逐字揭示） ── */
+@keyframes rydenTitleTrack {
+  from { letter-spacing: 0.4em; }
+  to { letter-spacing: 0.02em; }
 }

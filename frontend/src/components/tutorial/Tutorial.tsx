@@ -1,12 +1,9 @@
-import { useState, useEffect, useRef } from "react"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { TutorialStep } from "@/components/tutorial/TutorialStep"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import {
-  Brain, Upload, Sparkles, CreditCard, Star, X, Zap, Target, BarChart3, GitBranch,
-  CheckCircle2, ArrowRight, Trophy, Flame, Gamepad2, Calendar, Bell, Wifi,
-  Lightbulb, Heart, Clock, FileText, Image, FileSearch,
+  Brain, Upload, Sparkles, CreditCard, Star, Zap, Target, BarChart3, GitBranch,
+  CheckCircle2, ArrowRight, Trophy, Flame, Gamepad2, Lightbulb, Heart,
+  FileText, Image as ImageIcon, FileSearch,
 } from "lucide-react"
 
 const STORAGE_KEY = "tutorial_completed_v2"
@@ -137,7 +134,7 @@ function UploadDemo() {
         <div className="flex items-center justify-center gap-1.5 mt-4">
           {[
             { icon: FileText, label: "PDF", color: "text-red-500" },
-            { icon: Image, label: "图片", color: "text-blue-500" },
+            { icon: ImageIcon, label: "图片", color: "text-blue-500" },
             { icon: FileText, label: "TXT", color: "text-gray-400" },
           ].map((f, i) => (
             <div key={i} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-gray-100 shadow-sm">
@@ -152,7 +149,7 @@ function UploadDemo() {
       <div className="mt-3 space-y-1.5">
         {[
           { name: "线性代数笔记.pdf", size: "2.3 MB", icon: FileText, color: "bg-red-50 text-red-500", ext: "PDF", progress: 100 },
-          { name: "概率论速查.jpg", size: "1.1 MB", icon: Image, color: "bg-blue-50 text-blue-600", ext: "IMG", progress: 100 },
+          { name: "概率论速查.jpg", size: "1.1 MB", icon: ImageIcon, color: "bg-blue-50 text-blue-600", ext: "IMG", progress: 100 },
         ].map((f, i) => (
           <div
             key={i}
@@ -607,17 +604,22 @@ function BookOpen({ className }: { className?: string }) {
   return <span className={className}>📖</span>
 }
 
-function TutorialPropsPlaceholder(_: TutorialProps) { return null }
-
 /* ===========================================================
-   STEP DATA
+   STEP DATA — 保持原有 7 步及其文本内容
    =========================================================== */
-const steps = [
+interface TutorialStepData {
+  title: string
+  description: string
+  icon: ReactNode
+  tips: string[]
+  visual: ReactNode
+}
+
+const steps: TutorialStepData[] = [
   {
     title: "欢迎来到记忆星图",
     description: "MAPS · 你的 AI 私人复习教练。基于艾宾浩斯遗忘曲线 + GPT-4o，让每一分钟复习都精准有效。",
     icon: <Star className="w-8 h-8" />,
-    gradient: "from-indigo-500 via-purple-500 to-pink-500",
     tips: [
       "AI 知识图谱 — 自动构建知识网络，可视化所有关联",
       "AI 闪卡生成 — 上传笔记后 1 键生成高质量复习卡片",
@@ -630,7 +632,6 @@ const steps = [
     title: "上传你的第一份笔记",
     description: "支持 PDF、Word、图片、纯文本。所有格式 AI 都能深度解析。手写笔记也能通过 OCR 识别。",
     icon: <Upload className="w-8 h-8" />,
-    gradient: "from-blue-500 via-cyan-500 to-teal-500",
     tips: [
       "PDF 教材 — 自动提取文字、公式、图表",
       "图片笔记 — OCR 识别手写内容（支持中文）",
@@ -643,7 +644,6 @@ const steps = [
     title: "AI 智能解析 · 6 步流水线",
     description: "GPT-4o 大模型深度解析：读取笔记 → 语义理解 → 提取知识点 → 构建关联 → 生成闪卡 → 智能排程。",
     icon: <Sparkles className="w-8 h-8" />,
-    gradient: "from-purple-500 via-violet-500 to-fuchsia-500",
     tips: [
       "AI 自动提取 5-20 个核心知识点",
       "建立知识点之间的前置 / 包含 / 对比关系",
@@ -656,7 +656,6 @@ const steps = [
     title: "开始你的第一次复习",
     description: "通过主动回忆强化记忆。游戏化体验：连击奖励、成就徽章、目标进度环，复习也可以很上瘾。",
     icon: <CreditCard className="w-8 h-8" />,
-    gradient: "from-orange-500 via-amber-500 to-yellow-500",
     tips: [
       "点击卡片翻转查看答案",
       "根据掌握程度评分：😰 困难 / 🤔 一般 / 😊 简单",
@@ -669,7 +668,6 @@ const steps = [
     title: "可视化知识图谱",
     description: "所有知识点自动构建成星空式知识网络。按学习主题分组着色，可搜索、可过滤、可点击查看详情。",
     icon: <GitBranch className="w-8 h-8" />,
-    gradient: "from-teal-500 via-cyan-500 to-blue-500",
     tips: [
       "按资料自动分组着色，8 种渐变色区分主题",
       "搜索节点快速定位，薄弱/掌握 智能过滤",
@@ -682,7 +680,6 @@ const steps = [
     title: "数据驱动的学习统计",
     description: "GitHub 风格热力图、遗忘曲线对比、能力雷达图、AI 智能洞察。一切数据可视化，让进步看得见。",
     icon: <BarChart3 className="w-8 h-8" />,
-    gradient: "from-pink-500 via-rose-500 to-orange-500",
     tips: [
       "过去一年的每日复习热力图",
       "近 30 天复习趋势面积图",
@@ -695,7 +692,6 @@ const steps = [
     title: "AI 学习助手 · 你的私人教练",
     description: "对话式 AI 助手。4 种分析模式：诊断、大纲、要点、薄弱。基于你的真实数据生成个性化建议。",
     icon: <Brain className="w-8 h-8" />,
-    gradient: "from-amber-500 via-orange-500 to-red-500",
     tips: [
       "4 种快速分析：诊断 / 大纲 / 要点 / 薄弱",
       "对话式交互，流式打字 + AI 思考动画",
@@ -707,7 +703,116 @@ const steps = [
 ]
 
 /* ===========================================================
-   MAIN TUTORIAL COMPONENT
+   CINEMATIC STEP VIEW — 单步全屏视图
+   =========================================================== */
+interface StepViewProps {
+  step: TutorialStepData
+  stepNumber: number
+  totalSteps: number
+}
+
+function StepView({ step, stepNumber, totalSteps }: StepViewProps) {
+  const padded = String(stepNumber).padStart(2, "0")
+  const totalPadded = String(totalSteps).padStart(2, "0")
+
+  return (
+    <div className="relative h-full w-full">
+      {/* 巨大步骤编号 — 左上角水印 */}
+      <div className="pointer-events-none absolute top-0 left-0 p-6 lg:p-12 xl:p-16 z-0">
+        <div className="flex items-baseline gap-3 cinematic-number-reveal">
+          <span
+            className="font-display font-thin leading-none tracking-tighter select-none"
+            style={{
+              fontSize: "clamp(6rem, 13vw, 11rem)",
+              color: "transparent",
+              WebkitTextStroke: "1px rgba(232, 168, 124, 0.22)",
+            }}
+          >
+            {padded}
+          </span>
+          <span className="font-mono text-xs text-gray-600 tracking-[0.3em] hidden sm:inline">
+            / {totalPadded}
+          </span>
+        </div>
+      </div>
+
+      {/* 内容栅格：左文 右图 */}
+      <div className="relative z-10 grid h-full grid-cols-1 lg:grid-cols-2 gap-8 px-6 sm:px-10 lg:px-16 xl:px-24 py-16 lg:py-20">
+        {/* 左侧：文字 */}
+        <div className="flex flex-col justify-center max-w-xl">
+          {/* 步骤标签 */}
+          <div
+            className="flex items-center gap-4 mb-6 cinematic-fade-up"
+            style={{ animationDelay: "120ms" }}
+          >
+            <span className="h-px w-12 bg-amber-500 cinematic-line-grow" />
+            <span className="text-amber-400 [&>svg]:w-4 [&>svg]:h-4 [&>svg]:inline [&>svg]:mr-2 [&>svg]:align-[-2px]">
+              {step.icon}
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.35em] text-amber-400/80">
+              Step {padded} / {totalPadded}
+            </span>
+          </div>
+
+          {/* 标题 */}
+          <h2
+            className="font-display text-4xl sm:text-5xl xl:text-6xl font-bold text-white tracking-tight mb-6 cinematic-fade-up"
+            style={{ animationDelay: "220ms" }}
+          >
+            {step.title}
+          </h2>
+
+          {/* 描述 */}
+          <p
+            className="text-base lg:text-lg text-gray-400 leading-relaxed max-w-xl mb-10 cinematic-fade-up"
+            style={{ animationDelay: "320ms" }}
+          >
+            {step.description}
+          </p>
+
+          {/* 要点 — 细线编号列表，非圆点 */}
+          {step.tips && step.tips.length > 0 && (
+            <ul className="max-w-xl">
+              {step.tips.map((tip, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-5 py-4 border-t border-white/[0.06] cinematic-fade-up"
+                  style={{ animationDelay: `${420 + i * 110}ms` }}
+                >
+                  <span className="font-mono text-[11px] text-amber-500/70 mt-0.5 tracking-[0.2em] shrink-0 w-6">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-sm text-gray-300 leading-relaxed flex-1">
+                    {tip}
+                  </span>
+                </li>
+              ))}
+              <li className="border-t border-white/[0.06]" aria-hidden="true" />
+            </ul>
+          )}
+        </div>
+
+        {/* 右侧：视觉演示 */}
+        <div className="hidden lg:flex items-center justify-center">
+          <div
+            className="relative p-8 xl:p-10 rounded-sm border border-white/[0.08] bg-white/[0.015] cinematic-fade-up"
+            style={{ animationDelay: "440ms" }}
+          >
+            {/* 顶部琥珀细线装饰 */}
+            <span
+              className="absolute -top-px left-8 h-px w-16 bg-amber-500/70 cinematic-line-grow"
+              style={{ animationDelay: "600ms" }}
+            />
+            {step.visual}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ===========================================================
+   MAIN TUTORIAL COMPONENT — 电影感全屏引导
    =========================================================== */
 interface TutorialProps {
   open: boolean
@@ -716,61 +821,150 @@ interface TutorialProps {
 
 export function Tutorial({ open, onComplete }: TutorialProps) {
   const [currentStep, setCurrentStep] = useState(0)
+  const [direction, setDirection] = useState<1 | -1>(1)
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(s => s + 1)
-    else complete()
-  }
+  // 打开时锁定背景滚动并重置到首步
+  useEffect(() => {
+    if (open) {
+      setCurrentStep(0)
+      setDirection(1)
+      const prevOverflow = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      return () => {
+        document.body.style.overflow = prevOverflow
+      }
+    }
+  }, [open])
 
   const complete = () => {
     localStorage.setItem(STORAGE_KEY, "true")
     onComplete()
   }
 
-  const handleSkip = () => complete()
-  const handleRestart = () => { setCurrentStep(0) }
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setDirection(1)
+      setCurrentStep(s => s + 1)
+    } else {
+      complete()
+    }
+  }
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setDirection(-1)
+      setCurrentStep(s => s - 1)
+    }
+  }
+
+  // 键盘导航
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        if (currentStep < steps.length - 1) {
+          setDirection(1)
+          setCurrentStep(s => s + 1)
+        } else {
+          complete()
+        }
+      } else if (e.key === "ArrowLeft") {
+        if (currentStep > 0) {
+          setDirection(-1)
+          setCurrentStep(s => s - 1)
+        }
+      } else if (e.key === "Escape") {
+        complete()
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, currentStep])
+
+  if (!open) return null
 
   const step = steps[currentStep]
   const isLast = currentStep === steps.length - 1
+  const progress = ((currentStep + 1) / steps.length) * 100
+  const slideClass = direction === 1 ? "cinematic-slide-in" : "cinematic-slide-in-reverse"
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && handleSkip()}>
-      <DialogContent
-        className="p-0 max-w-xl w-[95vw] border-0 rounded-3xl shadow-2xl shadow-purple-200/40 [&>button]:hidden overflow-hidden"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
-        <DialogTitle className="sr-only">{step.title}</DialogTitle>
-
-        {/* Custom close button */}
+    <div
+      className="fixed inset-0 z-[9999] flex flex-col bg-[#0a0a14]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="新手引导"
+    >
+      {/* 顶部栏：跳过按钮（极简、纯文字、右上角） */}
+      <div className="flex items-center justify-between px-6 sm:px-10 lg:px-16 pt-6 lg:pt-8 shrink-0">
+        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-600">
+          Memory · Starmap
+        </span>
         <button
-          onClick={handleSkip}
-          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-          title="跳过引导"
+          onClick={complete}
+          className="text-sm text-gray-500 hover:text-amber-400 transition-colors duration-200 tracking-wide"
         >
-          <X className="w-4 h-4" />
+          跳过
         </button>
+      </div>
 
-        <TutorialStep
-          stepNumber={currentStep + 1}
-          totalSteps={steps.length}
-          title={step.title}
-          description={step.description}
-          icon={step.icon}
-          tips={step.tips}
-          gradient={step.gradient}
-          visual={step.visual}
-          isLast={isLast}
-          onNext={handleNext}
-          onSkip={handleSkip}
-        />
-      </DialogContent>
-    </Dialog>
+      {/* 主内容区：全屏步骤视图，横向滑动 + 渐显过渡 */}
+      <div className="relative flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
+        <div key={currentStep} className={cn("absolute inset-0", slideClass)}>
+          <StepView
+            step={step}
+            stepNumber={currentStep + 1}
+            totalSteps={steps.length}
+          />
+        </div>
+      </div>
+
+      {/* 底部栏：细线进度 + 导航按钮 */}
+      <div className="shrink-0 px-6 sm:px-10 lg:px-16 pb-8 pt-6">
+        {/* 进度细线 */}
+        <div className="mb-5">
+          <div className="relative h-px w-full bg-white/[0.08] overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="mt-3 flex items-center justify-between font-mono text-[11px] tracking-[0.2em] text-gray-600">
+            <span>
+              {String(currentStep + 1).padStart(2, "0")}{" "}
+              <span className="text-gray-700">/ {String(steps.length).padStart(2, "0")}</span>
+            </span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+        </div>
+
+        {/* 导航 */}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={handlePrev}
+            disabled={currentStep === 0}
+            className={cn(
+              "text-sm tracking-wide transition-colors duration-200",
+              currentStep === 0
+                ? "text-gray-700 cursor-not-allowed"
+                : "text-gray-400 hover:text-white"
+            )}
+          >
+            上一步
+          </button>
+
+          <button
+            onClick={handleNext}
+            className="group flex items-center gap-3 px-8 py-3 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium tracking-wide transition-all duration-300 active:scale-[0.98]"
+          >
+            {isLast ? "开始使用" : "继续"}
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+        </div>
+      </div>
+    </div>
   )
-}
-
-function RotateCCW({ className }: { className?: string }) {
-  return <span className={className}>↺</span>
 }
 
 export function isTutorialCompleted(): boolean {
