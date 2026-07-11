@@ -24,8 +24,8 @@ function FloatingPaths({
   visible: boolean
   vibrant?: boolean
 }) {
-  const opacityBase = vibrant ? 0.25 : 0.1
-  const opacityStep = vibrant ? 0.05 : 0.02
+  const opacityBase = vibrant ? 0.4 : 0.15
+  const opacityStep = vibrant ? 0.08 : 0.03
 
   // 预计算路径数据和动画时长，避免 render 中随机
   const paths = useMemo(() => {
@@ -38,7 +38,7 @@ function FloatingPaths({
       } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
         684 - i * 5 * position
       } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-      width: 0.5 + i * 0.03,
+      width: 1 + i * 0.15,
       duration: 20 + ((i * 7 + position * 13) % 10),
     }))
   }, [position])
@@ -65,7 +65,7 @@ function FloatingPaths({
               visible
                 ? {
                     pathLength: 1,
-                    opacity: [0.4, 0.8, 0.4],
+                    opacity: [0.5, 1, 0.5],
                     pathOffset: [0, 1, 0],
                   }
                 : { opacity: 0 }
