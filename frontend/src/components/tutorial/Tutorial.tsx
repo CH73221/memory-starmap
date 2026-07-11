@@ -518,7 +518,7 @@ export function Tutorial({ open, onComplete }: TutorialProps) {
       style={{ background: "rgb(255, 255, 255)" }}
     >
       {/* 流线动效背景 */}
-      <div className="absolute inset-0 z-0 opacity-40">
+      <div className="absolute inset-0 z-0">
         <BackgroundPathsLayer vibrant />
       </div>
       {/* 主色淡晕顶部 */}
