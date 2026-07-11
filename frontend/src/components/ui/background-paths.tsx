@@ -49,7 +49,7 @@ function FloatingPaths({
         className="w-full h-full"
         viewBox="0 0 696 316"
         fill="none"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="none"
         style={{ willChange: "transform", color: "#0f172a" }}
       >
         <title>Background Paths</title>
