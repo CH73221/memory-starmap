@@ -80,7 +80,7 @@ export function BootSequence({
         }}
       >
         {/* 流线背景 */}
-        <div className="absolute inset-0 opacity-30">
+        <div className="absolute inset-0 opacity-40">
           <BackgroundPathsLayer vibrant />
         </div>
 

@@ -157,9 +157,6 @@ export default function LoginPage() {
     >
       {/* ═══ 第 1 层：鲜艳底层 — 被遮罩覆盖，鼠标镂空处可见 ═══ */}
       <div className="absolute inset-0 z-0">
-        {/* 流动 SVG 路径 — 鲜艳模式，作为底层视觉 */}
-        <BackgroundPathsLayer vibrant />
-
         {/* 中心径向光晕（琥珀色） */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -178,6 +175,11 @@ export default function LoginPage() {
       {/* ═══ 第 2 层：聚光灯遮罩 — 半透明纸色覆盖，鼠标位置镂空 ═══ */}
       <div className="spotlight-overlay" />
       <div className="spotlight-ring" />
+
+      {/* ═══ 第 2.5 层：流动 SVG 路径 — 位于聚光灯之上，始终可见 ═══ */}
+      <div className="absolute inset-0 z-[6] pointer-events-none opacity-50">
+        <BackgroundPathsLayer vibrant />
+      </div>
 
       {/* ═══ 第 3 层：固定滚动元素（跑马灯、竖排文字、浮动标签） ═══ */}
 
