@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
+import { BackgroundPathsLayer } from "@/components/ui/background-paths"
 
 const VIDEOS = [
   "/videos/bloom-01.mp4",
@@ -63,8 +64,8 @@ export default function HomeLandingPage() {
       const t = setTimeout(() => setHasOpened(true), 80)
       return () => clearTimeout(t)
     }
-    // 超时保护 — 1.5秒后强制启动，避免视频加载慢阻塞页面
-    const timeout = setTimeout(() => setHasOpened(true), 1500)
+    // 超时保护 — 5秒后强制启动，避免视频加载慢阻塞页面
+    const timeout = setTimeout(() => setHasOpened(true), 5000)
     return () => clearTimeout(timeout)
   }, [videosReady, hasOpened])
 
@@ -140,15 +141,21 @@ export default function HomeLandingPage() {
   return (
     <div
       ref={stageRef}
-      className="relative bg-black"
+      className="relative"
       style={{
         height: "500vh",
         fontFamily: "'Space Grotesk', system-ui, sans-serif",
         color: "white",
+        background: "linear-gradient(135deg, #0a0a0f 0%, #12121f 40%, #0d0d18 70%, #08080f 100%)",
       }}
     >
       {/* Fixed full-screen stage */}
       <div className="fixed inset-0 overflow-hidden">
+        {/* 流线动效背景 — 视频加载前的视觉填充，视频加载后作为底层装饰 */}
+        <div className="absolute inset-0" style={{ zIndex: 0, opacity: videosReady[0] ? 0.15 : 0.4 }}>
+          <BackgroundPathsLayer />
+        </div>
+
         {/* 3 个视频叠加 - 根据滚动进度显示对应视频（按需加载优化） */}
         {VIDEOS.map((src, i) => {
           // 只加载当前活跃视频和相邻视频，其余延迟加载
@@ -463,7 +470,7 @@ export default function HomeLandingPage() {
 
         {/* Loading overlay - 视频未就绪且尚未超时时显示 */}
         {!videosReady[0] && !hasOpened && (
-          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black">
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center" style={{ background: "linear-gradient(135deg, #0a0a0f 0%, #12121f 40%, #0d0d18 70%, #08080f 100%)" }}>
             <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin" style={{ animationDuration: "1s" }} />
             <p className="mt-6 text-sm tracking-widest" style={{ color: "rgba(255,255,255,0.7)", fontFamily: "'Manrope', system-ui, sans-serif", fontSize: "11px", letterSpacing: "0.2em" }}>加载体验中</p>
           </div>
