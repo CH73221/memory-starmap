@@ -42,9 +42,9 @@ export default function DashboardPage() {
         statsService.getHeatmap(),
       ])
       setStats(statsData)
-      setMaterials(materialsData.items.slice(0, 5))
-      setMastery(masteryData)
-      setHeatmapData(heatmapResp.data)
+      setMaterials((materialsData?.items || []).slice(0, 5))
+      setMastery(Array.isArray(masteryData) ? masteryData : [])
+      setHeatmapData(Array.isArray(heatmapResp?.data) ? heatmapResp.data : [])
     } catch (err) {
       console.error("Failed to load dashboard data:", err)
     } finally {

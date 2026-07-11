@@ -14,7 +14,7 @@ export const statsService = {
 
   async getMastery(): Promise<MasteryData[]> {
     const response = await api.get<{ items: MasteryData[] }>("/stats/mastery")
-    return response.data.items
+    return response.data?.items || []
   },
 
   async getHeatmap(): Promise<HeatmapResponse> {
@@ -32,27 +32,26 @@ export const statsService = {
 
   async getTrend(days = 30): Promise<TrendData[]> {
     const response = await api.get<{ data: TrendData[] }>("/stats/trend", { params: { days } })
-    return response.data.data
+    return response.data?.data || []
   },
 
   async getRadar(): Promise<RadarData[]> {
     const response = await api.get<{ data: RadarData[] }>("/stats/radar")
-    return response.data.data
+    return response.data?.data || []
   },
 
   async getAchievements(): Promise<Achievement[]> {
     try {
-      const response = await api.get<Achievement[]>("/stats/achievements")
-      return response.data
+      const response = await api.get<{ items: Achievement[] }>("/achievements")
+      return response.data?.items || []
     } catch (e) {
-      // Fallback: return from local storage or empty
       return []
     }
   },
 
   async getAchievementStats(): Promise<AchievementStats> {
     try {
-      const response = await api.get<AchievementStats>("/stats/achievements/stats")
+      const response = await api.get<AchievementStats>("/achievements/stats")
       return response.data
     } catch (e) {
       return {
