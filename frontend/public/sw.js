@@ -1,5 +1,5 @@
-/* Memory Starmap Service Worker */
-const CACHE_NAME = 'memory-starmap-v1';
+/* Memory Starmap Service Worker v2 */
+const CACHE_NAME = 'memory-starmap-v2';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -14,7 +14,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: clean old caches and take control
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) =>
@@ -28,7 +28,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API calls, cache-first for static assets
+// Fetch strategy:
+// - Navigation/HTML requests: network-first (always get latest HTML)
+// - API calls: network-first with cache fallback
+// - Static assets (JS/CSS/fonts/images): cache-first (safe because filenames are content-hashed)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -37,7 +40,32 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Network-first strategy for API calls
+  // Skip cross-origin requests (fonts, analytics, etc.)
+  if (url.origin !== self.location.origin) return;
+
+  // Network-first for navigation requests (HTML pages)
+  if (request.mode === 'navigate' || (request.destination === 'document')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/index.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Network-first for API calls
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/v1/')) {
     event.respondWith(
       fetch(request)
@@ -57,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first strategy for static assets
+  // Cache-first for static assets (JS/CSS/fonts/images with content-hashed names)
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;

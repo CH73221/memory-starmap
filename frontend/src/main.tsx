@@ -36,3 +36,12 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </StrictMode>
 )
+
+// 安全清理：React 挂载后移除内联加载器（防止残留）
+setTimeout(() => {
+  const loader = document.getElementById("initial-loader")
+  if (loader) {
+    loader.classList.add("hidden")
+    setTimeout(() => loader.remove(), 500)
+  }
+}, 100)
