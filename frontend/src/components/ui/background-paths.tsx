@@ -46,11 +46,11 @@ function FloatingPaths({
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
-        className="w-full h-full text-slate-900"
+        className="w-full h-full"
         viewBox="0 0 696 316"
         fill="none"
         preserveAspectRatio="xMidYMid slice"
-        style={{ willChange: "transform" }}
+        style={{ willChange: "transform", color: "#0f172a" }}
       >
         <title>Background Paths</title>
         {paths.map((path) => (
