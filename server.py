@@ -6,9 +6,15 @@ import os
 import sys
 from pathlib import Path
 
+# Mark Render environment
+os.environ.setdefault("RENDER", "1")
+
 # Add backend to path
 backend_dir = Path(__file__).parent / "backend"
 sys.path.insert(0, str(backend_dir))
+
+# Ensure /tmp directories exist (Render's writable area)
+os.makedirs("/tmp/uploads", exist_ok=True)
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
