@@ -2,18 +2,27 @@ import { useRef, useState, useEffect, useMemo } from "react"
 import { motion } from "motion/react"
 
 /**
- * BackgroundPaths — SVG 流动路径背景动画（性能优化版）
+ * BackgroundPaths — SVG 流动路径背景动画
  *
- * 优化措施：
- * - 路径数量从 36→12（总量 72→24），降低 67% 渲染负载
- * - useMemo 缓存路径数据，避免每次渲染重建
- * - IntersectionObserver 离屏暂停动画
+ * 核心原理：
+ * - 手动设置 strokeDasharray（像素值）+ 动画 strokeDashoffset 实现流动
+ * - 不依赖 framer-motion pathLength（存在浏览器兼容问题）
+ * - strokeDashoffset 从 0 → -patternLength 循环，创造持续向前流动
+ * - viewBox="0 0 696 316" 是视口窗口，路径坐标远大于此
+ * - preserveAspectRatio="xMidYMid slice" 确保填满屏幕
+ *
+ * 性能优化：
+ * - useMemo 缓存路径数据
+ * - IntersectionObserver 离屏暂停
  * - 预计算 duration，避免 render 中 Math.random
- * - will-change 提示 GPU 合成层
  * - reduced-motion 降级
  */
 
-const PATH_COUNT = 12
+const PATH_COUNT = 36
+
+// 所有路径形状相似（仅偏移不同），总长度约 ~1580px
+// 使用固定 pattern 长度确保无缝循环
+const PATTERN_LENGTH = 1600
 
 function FloatingPaths({
   position,
@@ -24,11 +33,14 @@ function FloatingPaths({
   visible: boolean
   vibrant?: boolean
 }) {
-  const opacityBase = vibrant ? 0.5 : 0.2
-  const opacityStep = vibrant ? 0.04 : 0.02
+  // vibrant 模式：更高的 stroke opacity 和 width，适合白底
+  const opacityBase = vibrant ? 0.3 : 0.1
+  const opacityStep = vibrant ? 0.02 : 0.03
+  const widthBase = vibrant ? 1.5 : 0.5
+  const widthStep = vibrant ? 0.04 : 0.03
   const animOpacity = vibrant ? [0.5, 1, 0.5] : [0.3, 0.6, 0.3]
 
-  // 预计算路径数据和动画时长，避免 render 中随机
+  // 预计算路径数据和动画时长
   const paths = useMemo(() => {
     return Array.from({ length: PATH_COUNT }, (_, i) => ({
       id: i,
@@ -39,43 +51,58 @@ function FloatingPaths({
       } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
         684 - i * 5 * position
       } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-      width: vibrant ? 1.5 + i * 0.2 : 0.8 + i * 0.1,
+      width: widthBase + i * widthStep,
+      strokeOpacity: opacityBase + i * opacityStep,
       duration: 20 + ((i * 7 + position * 13) % 10),
+      // 可见段长度（占总长 25%-45%，随机化让不同路径不同步）
+      dashLength: 400 + ((i * 37 + position * 53) % 300),
+      // 起始偏移（让不同路径的流动起点不同）
+      offsetStart: ((i * 97 + position * 61) % PATTERN_LENGTH),
     }))
-  }, [position, vibrant])
+  }, [position, vibrant, opacityBase, opacityStep, widthBase, widthStep])
 
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
-        className="w-full h-full"
+        className="w-full h-full text-slate-950"
         viewBox="-450 -270 1200 1200"
         fill="none"
         preserveAspectRatio="xMidYMid slice"
-        style={{ willChange: "transform", color: "#0f172a" }}
       >
         <title>Background Paths</title>
-        {paths.map((path) => (
-          <motion.path
-            key={path.id}
-            d={path.d}
-            stroke="currentColor"
-            strokeWidth={path.width}
-            strokeOpacity={opacityBase + path.id * opacityStep}
-            initial={{ opacity: 0 }}
-            animate={
-              visible
-                ? {
-                    opacity: animOpacity,
-                  }
-                : { opacity: 0 }
-            }
-            transition={{
-              duration: path.duration,
-              repeat: visible ? Number.POSITIVE_INFINITY : 0,
-              ease: "linear",
-            }}
-          />
-        ))}
+        {paths.map((path) => {
+          const gapLength = PATTERN_LENGTH - path.dashLength
+          return (
+            <motion.path
+              key={path.id}
+              d={path.d}
+              stroke="currentColor"
+              strokeWidth={path.width}
+              strokeOpacity={path.strokeOpacity}
+              // 固定 dasharray：dashLength 可见 + gapLength 间隙
+              style={{
+                strokeDasharray: `${path.dashLength} ${gapLength}`,
+              }}
+              initial={{ strokeDashoffset: path.offsetStart, opacity: 0 }}
+              animate={
+                visible
+                  ? {
+                      strokeDashoffset: [
+                        path.offsetStart,
+                        path.offsetStart - PATTERN_LENGTH,
+                      ],
+                      opacity: animOpacity,
+                    }
+                  : { opacity: 0 }
+              }
+              transition={{
+                duration: path.duration,
+                repeat: visible ? Number.POSITIVE_INFINITY : 0,
+                ease: "linear",
+              }}
+            />
+          )
+        })}
       </svg>
     </div>
   )
@@ -96,7 +123,6 @@ export function BackgroundPathsLayer({
     const el = containerRef.current
     if (!el) return
 
-    // prefers-reduced-motion 时直接不渲染动画
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setVisible(false)
       return
@@ -129,16 +155,11 @@ export function BackgroundPaths({
   const words = title.split(" ")
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-ink-900">
-      <BackgroundPathsLayer />
-
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(200, 121, 65, 0.06) 0%, transparent 70%)",
-        }}
-      />
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-neutral-950">
+      <div className="absolute inset-0">
+        <FloatingPaths position={1} visible={true} />
+        <FloatingPaths position={-1} visible={true} />
+      </div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
         <motion.div
@@ -164,7 +185,7 @@ export function BackgroundPaths({
                       stiffness: 150,
                       damping: 25,
                     }}
-                    className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-paper-50 via-paper-200 to-amber-light/60"
+                    className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 to-neutral-700/80 dark:from-white dark:to-white/80"
                   >
                     {letter}
                   </motion.span>

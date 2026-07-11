@@ -3,9 +3,10 @@ import { motion } from "motion/react"
 import { BackgroundPathsLayer } from "@/components/ui/background-paths"
 
 /**
- * 记忆星图启动序列 · v6 白底 + motion 动效版
+ * 记忆星图启动序列 · v7 白底 + 流线动效 + 玻璃穿透
  * 纯排版动效，参照 ryden.co.jp 日式排版风格。
  * 白底 + 黑字 + 琥珀细线 + 流线背景。
+ * 曲线穿过中央玻璃区域时变淡变模糊。
  */
 
 interface BootSequenceProps {
@@ -79,10 +80,31 @@ export function BootSequence({
             "radial-gradient(ellipse at center, rgb(255, 255, 255) 0%, rgb(248, 250, 252) 60%, rgb(241, 245, 249) 100%)",
         }}
       >
-        {/* 流线背景 */}
-        <div className="absolute inset-0 opacity-40">
+        {/* 流线背景 — 全屏铺满 */}
+        <div className="absolute inset-0">
           <BackgroundPathsLayer vibrant />
         </div>
+
+        {/* 玻璃模糊层 — 中央区域，让曲线穿过时变淡变模糊 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: dissolving ? 0 : 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div
+            className="rounded-[2rem]"
+            style={{
+              width: "min(90%, 560px)",
+              height: "min(70%, 480px)",
+              background: "rgba(255, 255, 255, 0.45)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.6), 0 8px 32px rgba(0,0,0,0.04)",
+            }}
+          />
+        </motion.div>
 
         {/* 中心内容 */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
